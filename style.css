@@ -104,3 +104,54 @@ tfoot td.sum {
   background-color: #e9f5eb;  /* light green background */
   border-top: 2px solid #2b8a3e;  /* darker green line on top */
 }
+
+/* ---------- Responsive layout improvements (add at end of your CSS) ---------- */
+
+/* Make tables fill available width and be easy to tap on phones */
+table { width: 100%; table-layout: auto; font-size: 0.95rem; }
+th, td { word-break: break-word; }
+
+/* Make sure .grid stacks on small screens and the right column appears below the form */
+@media (max-width: 800px) {
+  /* stack columns vertically */
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+  }
+
+  /* Visual spacing and full-width cards on mobile */
+  .card { padding: 0.8rem; }
+
+  /* Header -> stack and center content */
+  header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+  }
+
+  /* Put the status line under the title and make it smaller */
+  #dataStatus { order: 2; font-size: 0.85rem; color:#555; }
+
+  /* Ensure species list & tables sit below the input card, with good spacing */
+  .species-list, #speciesList { margin-top: 0.5rem; }
+
+  /* Make buttons full-width when they wrap */
+  .controls-row button, button {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  /* Slightly increase tap targets */
+  input[type="number"], input[type="text"] { padding: 0.6rem; font-size: 1rem; }
+  button { padding: 0.65rem; font-size: 1rem; }
+
+  /* Make total row prominent on phones */
+  tfoot td.sum { font-weight:bold; background-color:#f3fbf6; border-top:1px solid #cfe9d7; }
+}
+
+/* Center the main heading on larger screens too (optional) */
+header h1 { margin:0; font-size:1.15rem; }
+
+/* Ensure the delete button remains small and easy to press */
+.del-btn { padding:4px; font-size:0.95rem; }
