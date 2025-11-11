@@ -156,5 +156,11 @@ th, td { word-break: break-word; }
 /* Center the main heading on larger screens too (optional) */
 header h1 { margin:0; font-size:1.15rem; }
 
+
 /* Ensure the delete button remains small and easy to press */
 .del-btn { padding:4px; font-size:0.95rem; }
+
+#resultArea {
+  margin-top: 12px;       /* gives vertical space */
+  text-align: center;     /* centers the message text */
+}
