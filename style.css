@@ -25,6 +25,9 @@ h1 {
   margin: 0;
   font-size: 1.1rem;
 }
+h3{
+    text-align: center;
+}
 .grid {
   display: grid;
   grid-template-columns: 1fr 380px;
