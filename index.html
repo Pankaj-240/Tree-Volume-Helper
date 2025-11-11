@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+  <title>Tree Volume Helper</title>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Tree Volume Helper</h1>
+      </div>
+      <div id="dataStatus" class="small">Loading data...</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3>New measurement</h3>
+
+        <label>Species (group)
+          <input id="species" type="text" placeholder="e.g., Peepal,Sandal..." value="">
+        </label>
+
+        <label>Length (m)
+          <input id="length" type="number" step="0.01" min="0">
+        </label>
+
+        <label>Circumference (m)
+          <input id="circ" type="number" step="0.01" min="0">
+        </label>
+
+        <div class="controls-row">
+          <button id="addBtn">Add</button>
+          <button id="clearAll">Clear All</button>
+        </div>
+
+        <div id="resultArea" class="small"></div>
+
+        <div class="notice" id="calcNotice"></div>
+      </div>
+
+      <div class="card">
+        <h3>Species data & totals</h3>
+        <div id="speciesList" style="margin-top:0.6rem;"></div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
