@@ -135,3 +135,13 @@ async function loadBookData(){
   renderSpeciesList();
   loadBookData();
 })();
+
+
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+      .catch(err => console.warn('Service Worker registration failed:', err));
+  });
+}
