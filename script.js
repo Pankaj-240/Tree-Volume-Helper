@@ -1,3 +1,5 @@
+// script.js (updated - defensive & GitHub Pages friendly)
+
 const DATA_JSON = 'book_data.json'; 
 let bookPoints = []; 
 const STORAGE_KEY = 'tree_volume_entries_v1';
@@ -8,7 +10,7 @@ function toNum(v){ return (v === null || v === undefined || v === '') ? NaN : Nu
 function saveEntries(entries){ localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
 function loadEntries(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; } }
 
-// ✅ Find volume ONLY if exact data exists
+// Find volume ONLY if exact data exists
 function findExactVolume(circ, len){
   for(const p of bookPoints){
     if (Number(p.circ) === Number(circ) && Number(p.len) === Number(len)){
@@ -18,17 +20,18 @@ function findExactVolume(circ, len){
   return null;
 }
 
-// ✅ Delete a single entry by its timestamp
+// Delete a single entry by its timestamp
 function deleteEntry(createdAt){
   const entries = loadEntries().filter(e => e.createdAt !== createdAt);
   saveEntries(entries);
   renderSpeciesList();
-  el('resultArea').textContent = '🗑️ Entry deleted.';
+  const ra = el('resultArea'); if(ra) ra.textContent = '🗑️ Entry deleted.';
 }
 
-// ✅ Renders species-wise tables and totals with delete button
+// Renders species-wise tables and totals with delete button
 function renderSpeciesList(){
   const container = el('speciesList');
+  if(!container) return;
   const entries = loadEntries();
   const bySpecies = {};
 
@@ -73,7 +76,7 @@ function renderSpeciesList(){
   });
 }
 
-// ✅ Add new entry (only when exact data found)
+// Add new entry (only when exact data found)
 function addEntry(species, len, circ, vol){
   const entries = loadEntries();
   entries.push({
@@ -82,36 +85,6 @@ function addEntry(species, len, circ, vol){
   saveEntries(entries);
   renderSpeciesList();
 }
-
-// Clear all entries
-el('clearAll').addEventListener('click', ()=> {
-  if(!confirm('Clear all saved entries?')) return;
-  saveEntries([]);
-  renderSpeciesList();
-  el('resultArea').textContent = 'All entries cleared.';
-});
-
-// Add button click
-el('addBtn').addEventListener('click', ()=> {
-  const species = (el('species').value || 'Unknown').trim();
-  const len = toNum(el('length').value);
-  const circ = toNum(el('circ').value);
-
-  if(isNaN(len) || isNaN(circ)){
-    alert('Enter valid numbers for length and circumference.');
-    return;
-  }
-
-  const vol = findExactVolume(circ, len);
-
-  if(vol === null || isNaN(vol)){
-    el('resultArea').textContent = '❌ These parameters are not in the data file.';
-    return;
-  }
-
-  addEntry(species, len, circ, Number(vol).toFixed(6));
-  el('resultArea').textContent = `✅ Added: volume = ${Number(vol).toFixed(6)}`;
-});
 
 // Load book_data.json
 async function loadBookData(){
@@ -122,26 +95,68 @@ async function loadBookData(){
     bookPoints = data
       .map(p => ({ circ: Number(p.circ), len: Number(p.len), vol: Number(p.vol) }))
       .filter(p => !isNaN(p.circ) && !isNaN(p.len) && !isNaN(p.vol));
-    el('dataStatus').textContent = `Loaded ${bookPoints.length} entries from ${DATA_JSON}`;
+    const ds = el('dataStatus'); if(ds) ds.textContent = `Loaded ${bookPoints.length} entries from ${DATA_JSON}`;
   } catch (err){
-    el('dataStatus').textContent = '⚠️ Failed to load book_data.json';
-    el('calcNotice').textContent = 'Please make sure book_data.json is in the same folder.';
+    const ds = el('dataStatus'); if(ds) ds.textContent = '⚠️ Failed to load book_data.json';
+    const cn = el('calcNotice'); if(cn) cn.textContent = 'Please make sure book_data.json is in the same folder.';
     console.error('loadBookData error:', err);
   }
 }
 
-// Initialize app
-(function init(){
+// DOM-ready initialization
+window.addEventListener('DOMContentLoaded', () => {
+  // Render saved entries (safe guard)
   renderSpeciesList();
+
+  // Wire up UI elements safely (check existence)
+  const clearBtn = el('clearAll');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', ()=> {
+      if(!confirm('Clear all saved entries?')) return;
+      saveEntries([]);
+      renderSpeciesList();
+      const ra = el('resultArea'); if(ra) ra.textContent = 'All entries cleared.';
+    });
+  }
+
+  const addBtn = el('addBtn');
+  if (addBtn) {
+    addBtn.addEventListener('click', ()=> {
+      const speciesEl = el('species');
+      const lengthEl = el('length');
+      const circEl = el('circ');
+      const resultArea = el('resultArea');
+
+      const species = (speciesEl && speciesEl.value ? speciesEl.value : 'Unknown').trim();
+      const len = toNum(lengthEl ? lengthEl.value : null);
+      const circ = toNum(circEl ? circEl.value : null);
+
+      if(isNaN(len) || isNaN(circ)){
+        alert('Enter valid numbers for length and circumference.');
+        return;
+      }
+
+      const vol = findExactVolume(circ, len);
+
+      if(vol === null || isNaN(vol)){
+        if(resultArea) resultArea.textContent = '❌ These parameters are not in the data file.';
+        return;
+      }
+
+      addEntry(species, len, circ, Number(vol).toFixed(6));
+      if(resultArea) resultArea.textContent = `✅ Added: volume = ${Number(vol).toFixed(6)}`;
+    });
+  }
+
+  // Load the data file after DOM ready
   loadBookData();
-})();
 
-
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+  // Register service worker: use relative path to avoid 404 on GitHub repo pages
+  if ('serviceWorker' in navigator) {
+    // If your service-worker.js lives next to index.html, use 'service-worker.js'.
+    // If it lives at repo root with different path, adjust accordingly.
+    navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('Service Worker registered with scope:', reg.scope))
       .catch(err => console.warn('Service Worker registration failed:', err));
-  });
-}
+  }
+});
