@@ -9,8 +9,7 @@ const PRECACHE_URLS = [
   'book_data.json',
   'offline.html',
   'icons/icon-192.png',
-  'icons/icon-512.png',
-  'favicon.ico'
+  'icons/icon-512.png'
 ];
 
 /* Install: sequential fetch + cache.put with immediate clone */
