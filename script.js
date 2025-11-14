@@ -152,11 +152,11 @@ window.addEventListener('DOMContentLoaded', () => {
   loadBookData();
 
   // Register service worker: use relative path to avoid 404 on GitHub repo pages
-  if ('serviceWorker' in navigator) {
-    // If your service-worker.js lives next to index.html, use 'service-worker.js'.
-    // If it lives at repo root with different path, adjust accordingly.
+ if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('Service Worker registered with scope:', reg.scope))
       .catch(err => console.warn('Service Worker registration failed:', err));
-  }
+  });
+}
 });
