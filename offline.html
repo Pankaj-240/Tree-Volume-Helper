@@ -4,13 +4,30 @@
   <meta charset="utf-8">
   <title>Offline — Tree Volume Helper</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/styles.css">
+  <meta name="theme-color" content="#2b6cb0">
+  <style>
+    /* minimal inline styles so offline page looks OK even if style.css isn't cached */
+    :root{ --accent:#2b8a3e; --bg:#f7f7f8; --text:#222; }
+    html,body{height:100%; margin:0; font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--text);}
+    main{display:flex;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;padding:1rem; text-align:center;}
+    .card{background:#fff;padding:1.2rem;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,0.06);max-width:720px;}
+    h1{margin:0 0 0.5rem 0;font-size:1.25rem;}
+    p{margin:0 0 1rem 0;color:#444;}
+    .actions{display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-top:0.5rem;}
+    .btn{background:var(--accent);color:#fff;border:0;padding:0.5rem 0.9rem;border-radius:6px;text-decoration:none;display:inline-block;}
+    .link{background:transparent;border:1px solid #ddd;padding:0.45rem 0.8rem;border-radius:6px;color:#222;text-decoration:none;}
+  </style>
 </head>
 <body>
-  <main style="display:flex;min-height:100vh;align-items:center;justify-content:center;flex-direction:column">
-    <h1>You're offline</h1>
-    <p>The Tree Volume Helper is offline right now. You can still use cached pages and previously saved data.</p>
-    <a href="/" style="margin-top:1rem">Return home</a>
+  <main>
+    <div class="card">
+      <h1>You're offline</h1>
+      <p>The Tree Volume Helper is currently offline. You can still use previously saved measurements in this app. When you're back online, the latest data will load automatically.</p>
+      <div class="actions">
+        <a class="btn" href="#" onclick="location.reload();return false;">Retry</a>
+        <a class="link" href="./">Return home</a>
+      </div>
+    </div>
   </main>
 </body>
 </html>

@@ -1,6 +1,6 @@
-/* service-worker.js - safe precache + network fallback (block comments only) */
+/* service-worker.js - safe precache + network fallback */
 
-const CACHE_NAME = 'treevol-static-v1';
+const CACHE_NAME = 'treevol-static-v2'; // bump when you change assets
 const PRECACHE_URLS = [
   'index.html',
   'manifest.json',
@@ -12,28 +12,38 @@ const PRECACHE_URLS = [
   'icons/icon-512.png'
 ];
 
-/* Install: sequential fetch + cache.put with immediate clone */
+/* helper: trim cache by keeping max entries (optional) */
+async function trimCache(cacheName, maxItems){
+  try {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+    if (keys.length > maxItems){
+      const remove = keys.slice(0, keys.length - maxItems);
+      await Promise.all(remove.map(k => cache.delete(k)));
+    }
+  } catch (e) { /* ignore */ }
+}
+
+/* Install: precache resources */
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
     const failed = [];
-    for (const url of PRECACHE_URLS) {
+    for (const url of PRECACHE_URLS){
       try {
-        const response = await fetch(url, { cache: 'no-store' });
-        if (!response || !response.ok) throw new Error('Fetch failed: ' + url + ' (' + (response && response.status) + ')');
-        /* clone immediately and store in cache */
-        await cache.put(url, response.clone());
-      } catch (err) {
+        const resp = await fetch(url, {cache: 'no-store'});
+        if (!resp || !resp.ok) throw new Error('Fetch failed: ' + url);
+        await cache.put(url, resp.clone());
+      } catch (err){
         console.warn('SW install: failed to cache', url, err);
         failed.push(url);
       }
     }
-    if (failed.length) console.warn('SW install completed with failures for:', failed);
     await self.skipWaiting();
   })());
 });
 
-/* Activate: clear old caches and take control */
+/* Activate: clean up old caches */
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
@@ -42,31 +52,58 @@ self.addEventListener('activate', event => {
   })());
 });
 
-/* Fetch handler: navigation -> network-first with fallback; other resources -> network-first then cache */
+/* Fetch: navigation -> network-first with offline fallback. Other GET -> network-first then cache, with icon runtime caching. */
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+
   const requestURL = new URL(event.request.url);
 
-  /* navigation requests (page load / address bar) */
+  // Navigation requests (page loads)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then(resp => {
-          if (requestURL.origin === location.origin) {
+          // cache successful navigations from our origin
+          if (requestURL.origin === location.origin){
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, resp.clone()));
           }
           return resp;
         })
-        .catch(() => caches.match('index.html').then(r => r || caches.match('offline.html')))
+        .catch(() => {
+          // return cached index.html if available, otherwise offline.html
+          return caches.match('index.html').then(r => r || caches.match('offline.html'));
+        })
     );
     return;
   }
 
-  /* other GET requests */
+  // For same-origin icons/images -> runtime cache with fallback
+  if (requestURL.origin === location.origin && requestURL.pathname.startsWith('/icons/')) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request)
+          .then(networkResp => {
+            // cache icon for later
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, networkResp.clone());
+              // small trim (optional)
+              trimCache(CACHE_NAME, 60);
+            });
+            return networkResp;
+          })
+          .catch(() => caches.match('icons/icon-192.png')); // fallback icon
+      })
+    );
+    return;
+  }
+
+  // Default: network-first with cache fallback
   event.respondWith(
     fetch(event.request)
       .then(networkResponse => {
-        if (requestURL.origin === location.origin) {
+        // store in cache for offline use (only same-origin)
+        if (requestURL.origin === location.origin){
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
         }
         return networkResponse;

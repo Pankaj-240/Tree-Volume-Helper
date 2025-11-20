@@ -2,36 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2b6cb0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Tree Volume Helper</title>
+
+  <!-- PWA + Styles -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2b6cb0">
 </head>
+
 <body>
   <div class="wrap">
+
+    <!-- Header -->
     <header>
-      <div>
+      <div class="header-inner">
         <h1>Tree Volume Helper</h1>
       </div>
-      <!-- <div id="dataStatus" class="small">Loading data...</div> -->
     </header>
 
+    <!-- Main Grid -->
     <div class="grid">
+
+      <!-- Input card -->
       <div class="card">
         <h3>New measurement</h3>
 
-        <label>Species
-          <input id="species" type="text" placeholder="e.g., Peepal,Sandal..." value="">
+        <label>
+          Species
+          <input id="species" type="text" placeholder="e.g., Peepal, Sandal…" />
         </label>
 
-        <label>Length (m)
-          <input id="length" type="number" step="0.01" min="0">
+        <label>
+          Length (m)
+          <input id="length" type="number" step="0.01" min="0" />
         </label>
 
-        <label>Circumference (m)
-          <input id="circ" type="number" step="0.01" min="0">
+        <label>
+          Circumference (m)
+          <input id="circ" type="number" step="0.01" min="0" />
         </label>
 
         <div class="controls-row">
@@ -40,16 +50,19 @@
         </div>
 
         <div id="resultArea" class="small"></div>
-
-        <div class="notice" id="calcNotice"></div>
+        <div id="calcNotice" class="notice"></div>
       </div>
 
+      <!-- Tables card -->
       <div class="card">
         <h3>Tables</h3>
         <div id="speciesList" style="margin-top:0.6rem;"></div>
       </div>
+
     </div>
   </div>
+
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>

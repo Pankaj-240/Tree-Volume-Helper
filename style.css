@@ -1,166 +1,218 @@
-:root {
+/* =========================
+   Tree Volume Helper — CSS
+   Optimized & deduplicated
+   ========================= */
+
+/* Theme variables */
+:root{
   --accent: #2b8a3e;
   --bg: #f7f7f8;
-  --card: #fff;
-  --text: #222;
+  --card: #ffffff;
+  --text: #222222;
+  --muted: #666666;
+  --radius: 8px;
+  --shadow: 0 2px 6px rgba(0,0,0,0.06);
+  --transition-fast: 0.18s ease;
 }
-body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  margin: 0;
+
+/* Base */
+* { box-sizing: border-box; }
+html,body { height:100%; }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
-.wrap {
-  max-width: 1000px;
-  margin: 1rem auto;
-  padding: 1rem;
+
+/* Layout container */
+.wrap{
+  max-width:1000px;
+  margin:1rem auto;
+  padding:1rem;
 }
-header {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-}
-h1 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-h3{
-    text-align: center;
-}
-.grid {
-  display: grid;
+
+/* Header */
+.header-inner{ display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+header{ margin-bottom:0.25rem; }
+h1{ margin:0; font-size:1.15rem; }
+h3{ margin:0 0 0.5rem 0; text-align:center; font-size:1rem; }
+
+/* Grid */
+.grid{
+  display:grid;
   grid-template-columns: 1fr 380px;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap:1rem;
+  margin-top:1rem;
 }
-.card {
+
+/* Cards / panels */
+.card{
   background: var(--card);
   padding: 0.9rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
-label {
-  display: block;
-  margin-top: 0.6rem;
-  font-size: 0.9rem;
+
+/* Form fields */
+label, .field { display:block; font-size:0.95rem; margin-top:0.45rem; }
+input[type="text"], input[type="number"]{
+  width:100%;
+  padding:0.56rem;
+  margin-top:0.25rem;
+  border-radius:6px;
+  border:1px solid #e6e6e6;
+  font-size:0.98rem;
+  background: #fff;
 }
-input[type="text"],
-input[type="number"] {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  box-sizing: border-box;
-  border-radius: 6px;
-  border: 1px solid #e6e6e6;
-}
-button {
+
+/* Buttons */
+button{
   background: var(--accent);
-  color: white;
+  color: #fff;
   border: 0;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:0.6rem;
+  font-size:0.95rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-table {
-  width: 100%;
+button:active{ transform: translateY(1px); }
+button.secondary{
+  background: transparent;
+  color: var(--text);
+  border: 1px solid #ddd;
+}
+
+/* Controls row */
+.controls-row{ display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap; }
+
+/* Small text */
+.small{ font-size:0.85rem; color: var(--muted); }
+
+/* Notices */
+.notice{ margin-top:0.6rem; font-size:0.9rem; color:#b00; }
+
+/* Table base */
+table{
+  width:100%;
   border-collapse: collapse;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
+  margin-top:0.5rem;
+  font-size:0.95rem;
+  background: transparent;
 }
-th,
-td {
-  padding: 0.45rem;
-  border-bottom: 1px solid #eee;
+th, td{
+  padding: 0.55rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   text-align: left;
 }
-.small {
-  font-size: 0.85rem;
-  color: #666;
-}
-.controls-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  flex-wrap: wrap;
-}
-.notice {
-  margin-top: 0.6rem;
-  font-size: 0.9rem;
-  color: #b00;
-}
-.del-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-}
-.del-btn:hover {
-  transform: scale(1.1);
+th{ background: rgba(0,0,0,0.03); font-weight:600; }
+
+/* Footer totals */
+tfoot td.sum{
+  font-weight:700;
+  background-color:#e9f5eb;
+  border-top:2px solid var(--accent);
+  color:#000;
 }
 
-tfoot td.sum {
-  font-weight: bold;
-  color: #000;
-  background-color: #e9f5eb;  /* light green background */
-  border-top: 2px solid #2b8a3e;  /* darker green line on top */
+/* Result area */
+#resultArea{ margin-top:12px; text-align:center; }
+
+/* Delete button */
+.del-btn{
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:1rem;
+  padding:6px;
+  border-radius:6px;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+.del-btn:hover{ background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+
+/* Species block visual separation */
+.species-block{
+  border-radius:10px;
+  padding:0.6rem;
+  margin-bottom:0.9rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.species-block:hover{ transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+
+/* Heading with compact count: SpeciesName(2) */
+.species-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0.5rem;
+  margin-bottom:0.45rem;
+  font-weight:600;
+  font-size:0.98rem;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding-bottom:6px;
+}
+.species-heading .count{ font-weight:500; color:var(--text); }
+
+/* Species color palette (subtle) */
+.species-color-0{ background: linear-gradient(90deg,#f6fbf7,#ffffff); border-color: rgba(43,138,62,0.12); }
+.species-color-1{ background: linear-gradient(90deg,#f9f8ff,#ffffff); border-color: rgba(66,56,160,0.08); }
+.species-color-2{ background: linear-gradient(90deg,#fffaf2,#ffffff); border-color: rgba(217,149,21,0.08); }
+.species-color-3{ background: linear-gradient(90deg,#fff6fb,#ffffff); border-color: rgba(196,51,119,0.08); }
+.species-color-4{ background: linear-gradient(90deg,#f2fbff,#ffffff); border-color: rgba(13,150,180,0.08); }
+.species-color-5{ background: linear-gradient(90deg,#fbfff6,#ffffff); border-color: rgba(32,126,42,0.08); }
+
+/* Data-id element transition smoothness */
+tr[data-id]{ transition: background-color 0.35s ease, transform 0.2s ease, opacity 0.2s ease; }
+
+/* === Animations === */
+
+/* add highlight */
+.flash-added{
+  animation: flashAdded 0.65s ease forwards;
+  z-index:2;
+}
+@keyframes flashAdded{
+  0%   { background-color: rgba(255,247,230,0.95); transform: scale(0.995); }
+  40%  { background-color: rgba(234,249,238,1); transform: scale(1.02); }
+  100% { background-color: transparent; transform: scale(1); }
 }
 
-/* ---------- Responsive layout improvements (add at end of your CSS) ---------- */
-
-/* Make tables fill available width and be easy to tap on phones */
-table { width: 100%; table-layout: auto; font-size: 0.95rem; }
-th, td { word-break: break-word; }
-
-/* Make sure .grid stacks on small screens and the right column appears below the form */
-@media (max-width: 800px) {
-  /* stack columns vertically */
-  .grid {
-    grid-template-columns: 1fr !important;
-    gap: 0.75rem;
-  }
-
-  /* Visual spacing and full-width cards on mobile */
-  .card { padding: 0.8rem; }
-
-  /* Header -> stack and center content */
-  header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.35rem;
-  }
-
-  /* Put the status line under the title and make it smaller */
-  #dataStatus { order: 2; font-size: 0.85rem; color:#555; }
-
-  /* Ensure species list & tables sit below the input card, with good spacing */
-  .species-list, #speciesList { margin-top: 0.5rem; }
-
-  /* Make buttons full-width when they wrap */
-  .controls-row button, button {
-    min-width: 0;
-    flex: 1 1 auto;
-  }
-
-  /* Slightly increase tap targets */
-  input[type="number"], input[type="text"] { padding: 0.6rem; font-size: 1rem; }
-  button { padding: 0.65rem; font-size: 1rem; }
-
-  /* Make total row prominent on phones */
-  tfoot td.sum { font-weight:bold; background-color:#f3fbf6; border-top:1px solid #cfe9d7; }
+/* remove animation */
+.flash-removed{
+  animation: flashRemoved 0.45s ease forwards;
+}
+@keyframes flashRemoved{
+  0%   { opacity:1; transform: scale(1); }
+  40%  { opacity:0.85; transform: scale(0.98); }
+  100% { opacity:0; transform: scale(0.95); height:0; margin:0; padding:0; overflow:hidden; }
 }
 
-/* Center the main heading on larger screens too (optional) */
-header h1 { margin:0; font-size:1.15rem; }
-
-
-/* Ensure the delete button remains small and easy to press */
-.del-btn { padding:4px; font-size:0.95rem; }
-
-#resultArea {
-  margin-top: 12px;       /* gives vertical space */
-  text-align: center;     /* centers the message text */
+/* pulse result area */
+.pulse{ animation: resultPulse 0.65s ease forwards; }
+@keyframes resultPulse{
+  0%   { transform: scale(0.97); opacity:0.9; }
+  40%  { transform: scale(1.03); opacity:1; }
+  100% { transform: scale(1); opacity:1; }
 }
+
+/* Responsive improvements */
+@media (max-width: 800px){
+  .grid{ grid-template-columns: 1fr !important; gap:0.75rem; }
+  .card{ padding:0.8rem; }
+  header{ text-align:center; flex-direction:column; align-items:center; gap:0.35rem; }
+  #dataStatus{ order:2; font-size:0.85rem; color:#555; }
+  .species-list, #speciesList{ margin-top:0.5rem; }
+  .controls-row button, button{ min-width:0; flex:1 1 auto; }
+  input[type="number"], input[type="text"]{ padding:0.6rem; font-size:1rem; }
+  button{ padding:0.65rem; font-size:1rem; }
+  tfoot td.sum{ font-weight:700; background-color:#f3fbf6; border-top:1px solid #cfe9d7; }
+}
+
+/* Small polish */
+.small{ color:var(--muted); }
