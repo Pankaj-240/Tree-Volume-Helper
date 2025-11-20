@@ -253,8 +253,8 @@ window.addEventListener('DOMContentLoaded', () => {
     addEntry(species, len, circ, Number(vol).toFixed(6), createdAt);
 
     if (resultArea) resultArea.textContent = `✅ Added: volume = ${Number(vol).toFixed(6)}`;
-    if (lengthEl) lengthEl.value = '';
-    if (circEl) circEl.value = '';
+    //if (lengthEl) lengthEl.value = '';
+    //if (circEl) circEl.value = '';
   });
 
   // Event delegation for delete buttons (faster than attaching many handlers)
