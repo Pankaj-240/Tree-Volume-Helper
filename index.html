@@ -29,6 +29,19 @@
       <div class="card">
         <h3>New measurement</h3>
 
+        <!-- MINIMAL truck UI -->
+        <label>
+          Truck
+          <select id="truckSelect" aria-label="Select truck"></select>
+        </label>
+
+        <div style="display:flex; gap:8px; margin-top:6px; align-items:center;">
+          <input id="newTruckInput" type="text" placeholder="New truck e.g. TRK-01" style="flex:1; padding:8px; border-radius:6px; border:1px solid #e6e6e6;" />
+          <button id="addTruckBtn" type="button" style="padding:8px 10px; border-radius:6px;">Add</button>
+          <button id="deleteTruckBtn" type="button" style="padding:8px 10px; border-radius:6px; background:#d9534f; color:#fff; border:0;">Delete</button>
+        </div>
+        <!-- END truck UI -->
+
         <label>
           Species
           <input id="species" type="text" placeholder="e.g., Peepal, Sandal…" />
@@ -56,7 +69,7 @@
       <!-- Tables card -->
       <div class="card">
         <h3>Tables</h3>
-        <div id="speciesList" style="margin-top:0.6rem;"></div>
+        <div id="speciesList" style="margin-top:0.6rem"></div>
       </div>
 
     </div>

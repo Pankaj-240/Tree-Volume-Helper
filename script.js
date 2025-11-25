@@ -3,6 +3,7 @@ const DATA_JSON = 'book_data.json';
 let bookPoints = [];
 let bookMap = new Map(); // for fast lookup: key -> vol
 const STORAGE_KEY = 'tree_volume_entries_v1';
+const TRUCKS_KEY = 'tvh_trucks_v1'; // minimal trucks list key
 let LAST_ADDED_ID = null;
 
 /* ---------- Helpers ---------- */
@@ -33,7 +34,80 @@ function findExactVolume(circ, len) {
   return bookMap.get(keyFor(circ, len)) ?? null;
 }
 
+/* ---------- Trucks helpers (minimal, robust) ---------- */
+
+// Normalize a raw trucks array to an array of strings
+function normalizeTrucksArray(raw) {
+  if (!Array.isArray(raw)) return [];
+
+  const out = raw.map(item => {
+    if (item === null || item === undefined) return null;
+    if (typeof item === 'string') return item.trim();
+    if (typeof item === 'object') {
+      if (typeof item.name === 'string' && item.name.trim()) return item.name.trim();
+      if (typeof item.id === 'string' && item.id.trim()) return item.id.trim();
+      // fallback to JSON string if needed
+      try { return JSON.stringify(item); } catch(e){ return null; }
+    }
+    return null;
+  }).filter(Boolean);
+
+  // dedupe while preserving order
+  const seen = new Set();
+  const dedup = [];
+  for (const t of out) {
+    if (!seen.has(t)) { seen.add(t); dedup.push(t); }
+  }
+  return dedup;
+}
+
+function loadTrucksFromStorage() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(TRUCKS_KEY) || '[]');
+    const normalized = normalizeTrucksArray(raw);
+    if (normalized.length === 0) {
+      // try infer from entries for backwards compat
+      const entries = loadEntries();
+      const set = new Set();
+      for (const e of entries) {
+        const tv = (e && typeof e.truck === 'string' && e.truck.trim()) ? e.truck.trim() : null;
+        if (tv) set.add(tv);
+      }
+      const inferred = Array.from(set);
+      if (inferred.length > 0) return normalizeTrucksArray(inferred);
+      return ['Truck-1'];
+    }
+    return normalized;
+  } catch (err) {
+    console.warn('loadTrucks error', err);
+    return ['Truck-1'];
+  }
+}
+
+function saveTrucksToStorage(arr) {
+  const safe = Array.isArray(arr) ? arr.map(a => String(a)) : [];
+  localStorage.setItem(TRUCKS_KEY, JSON.stringify(safe));
+}
+
 /* ---------- CRUD & Rendering ---------- */
+
+/* Runtime truck state (minimal) */
+let TRUCKS = [];
+let CURRENT_TRUCK = null;
+
+function renderTruckSelect() {
+  const sel = el('truckSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (const t of TRUCKS) {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  }
+  if (!CURRENT_TRUCK || !TRUCKS.includes(CURRENT_TRUCK)) CURRENT_TRUCK = TRUCKS[0] || 'Truck-1';
+  sel.value = CURRENT_TRUCK;
+}
 
 /* Remove entry with animation request */
 function requestDeleteEntry(createdAt) {
@@ -69,7 +143,12 @@ function renderSpeciesList() {
   const container = el('speciesList');
   if (!container) return;
 
-  const entries = loadEntries();
+  // filter entries by CURRENT_TRUCK (minimal change)
+  const allEntries = loadEntries();
+  const entries = (CURRENT_TRUCK && allEntries && allEntries.length)
+    ? allEntries.filter(en => (en.truck || 'Truck-1') === CURRENT_TRUCK)
+    : allEntries;
+
   container.innerHTML = ''; // clear once
 
   if (!entries.length) {
@@ -180,9 +259,36 @@ function renderSpeciesList() {
 /* ---------- Add ---------- */
 function addEntry(species, len, circ, vol, createdAt) {
   const entries = loadEntries();
-  entries.push({ species, len: Number(len), circ: Number(circ), vol: Number(vol), createdAt: createdAt || new Date().toISOString() });
+  // store truck (default to first truck if none)
+  const truckToSave = CURRENT_TRUCK || (TRUCKS[0] || 'Truck-1');
+  entries.push({ species, len: Number(len), circ: Number(circ), vol: Number(vol), createdAt: createdAt || new Date().toISOString(), truck: truckToSave });
   saveEntries(entries);
   renderSpeciesList();
+}
+
+/* ---------- Delete Truck (minimal) ---------- */
+function deleteCurrentTruck() {
+  if (!CURRENT_TRUCK) return;
+  if (!confirm(`Delete truck "${CURRENT_TRUCK}" and all its entries? This cannot be undone.`)) return;
+
+  // remove entries for this truck
+  let all = loadEntries();
+  all = all.filter(e => (e.truck || 'Truck-1') !== CURRENT_TRUCK);
+  saveEntries(all);
+
+  // remove truck from list
+  TRUCKS = TRUCKS.filter(t => t !== CURRENT_TRUCK);
+  if (TRUCKS.length === 0) TRUCKS = ['Truck-1'];
+
+  saveTrucksToStorage(TRUCKS);
+
+  // switch to first truck
+  CURRENT_TRUCK = TRUCKS[0];
+  renderTruckSelect();
+  renderSpeciesList();
+
+  const ra = el('resultArea');
+  if (ra) { ra.textContent = `Truck "${CURRENT_TRUCK}" selected.`; ra.classList.add('pulse'); setTimeout(()=> ra.classList.remove('pulse'),700); }
 }
 
 /* ---------- Load book data ---------- */
@@ -215,8 +321,46 @@ function debounce(fn, wait = 120) {
 
 /* ---------- Init & Events ---------- */
 window.addEventListener('DOMContentLoaded', () => {
+  // load minimal trucks and render
+  TRUCKS = loadTrucksFromStorage();
+  if (!TRUCKS || !TRUCKS.length) TRUCKS = ['Truck-1'];
+  CURRENT_TRUCK = TRUCKS[0];
+  renderTruckSelect();
+
   // initial render
   renderSpeciesList();
+
+  // Add truck button
+  const addTruckBtn = el('addTruckBtn');
+  if (addTruckBtn) {
+    addTruckBtn.addEventListener('click', () => {
+      const input = el('newTruckInput');
+      if (!input) return;
+      const v = (input.value || '').trim();
+      if (!v) { alert('Enter truck name'); return; }
+      if (!TRUCKS.includes(v)) {
+        TRUCKS.push(v);
+        saveTrucksToStorage(TRUCKS);
+      }
+      CURRENT_TRUCK = v;
+      renderTruckSelect();
+      renderSpeciesList();
+      input.value = '';
+    });
+  }
+
+  // Delete truck button
+  const deleteTruckBtn = el('deleteTruckBtn');
+  if (deleteTruckBtn) deleteTruckBtn.addEventListener('click', deleteCurrentTruck);
+
+  // truck change -> re-render for selected truck
+  const truckSelectEl = el('truckSelect');
+  if (truckSelectEl) {
+    truckSelectEl.addEventListener('change', (ev) => {
+      CURRENT_TRUCK = ev.target.value;
+      renderSpeciesList();
+    });
+  }
 
   // Clear all
   const clearBtn = el('clearAll');
@@ -227,7 +371,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const ra = el('resultArea'); if (ra) { ra.textContent = 'All entries cleared.'; ra.classList.add('pulse'); setTimeout(()=>ra.classList.remove('pulse'),700); }
   });
 
-  // Add button
+  // Add button (keeps original book lookup behavior)
   const addBtn = el('addBtn');
   if (addBtn) addBtn.addEventListener('click', ()=> {
     const speciesEl = el('species');
