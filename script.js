@@ -576,25 +576,9 @@ window.addEventListener("DOMContentLoaded", () => {
       lastAddedData = { species, len, circ, vol: Number(vol).toFixed(6) };
 
       if (resultArea) {
-        resultArea.innerHTML = `✅ Added: volume = ${Number(vol).toFixed(
-          6
-        )} <button id="addAgainBtn" type="button" style="margin-left: 8px; padding: 4px 8px; font-size: 0.9rem;">Add Again</button>`;
-        // Add event listener to the new button
-        const addAgainBtn = el("addAgainBtn");
-        if (addAgainBtn) {
-          addAgainBtn.addEventListener("click", () => {
-            if (lastAddedData) {
-              addAgainEntry(
-                lastAddedData.species,
-                lastAddedData.len,
-                lastAddedData.circ,
-                lastAddedData.vol
-              );
-              if (resultArea)
-                resultArea.textContent = `✅ Added again: volume = ${lastAddedData.vol}`;
-            }
-          });
-        }
+        resultArea.textContent = `✅ Added: volume = ${Number(vol).toFixed(6)}`;
+        resultArea.classList.add("pulse");
+        setTimeout(() => resultArea.classList.remove("pulse"), 700);
       }
       //if (lengthEl) lengthEl.value = '';
       //if (circEl) circEl.value = '';
