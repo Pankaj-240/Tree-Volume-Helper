@@ -246,7 +246,9 @@ function renderSpeciesList() {
               r.createdAt
             )}" title="Decrease quantity">−</button>`
           : "";
-      const tdQ = `<td><span class="qty-controls">${minusBtn}<span class="qty-val">${qty}</span><button class="qty-btn qty-plus" data-id="${escapeHtml(
+      const tdQ = `<td><span class="qty-controls">${minusBtn}<span class="qty-val" data-id="${escapeHtml(
+        r.createdAt
+      )}" title="Click to edit quantity" style="cursor: pointer;">${qty}</span><button class="qty-btn qty-plus" data-id="${escapeHtml(
         r.createdAt
       )}" title="Increase quantity">+</button></span></td>`;
       const tdDel = `<td><button class="del-btn" data-id="${escapeHtml(
@@ -391,6 +393,20 @@ function decreaseQuantity(createdAt) {
   const entry = entries.find((e) => e.createdAt === createdAt);
   if (entry) {
     entry.quantity = Math.max(1, (entry.quantity || 1) - 1);
+    saveEntries(entries);
+    renderSpeciesList();
+  }
+}
+
+/* Set quantity of entry to a specific value */
+function setQuantity(createdAt, newQty) {
+  const qty = parseInt(newQty, 10);
+  if (isNaN(qty) || qty < 1) return;
+
+  const entries = loadEntries();
+  const entry = entries.find((e) => e.createdAt === createdAt);
+  if (entry) {
+    entry.quantity = qty;
     saveEntries(entries);
     renderSpeciesList();
   }
@@ -606,6 +622,20 @@ window.addEventListener("DOMContentLoaded", () => {
       if (minusBtn) {
         const id = minusBtn.getAttribute("data-id");
         if (id) decreaseQuantity(id);
+        return;
+      }
+
+      // Edit quantity by clicking on the number
+      const qtyVal = ev.target.closest && ev.target.closest(".qty-val");
+      if (qtyVal) {
+        const id = qtyVal.getAttribute("data-id");
+        if (id) {
+          const currentQty = qtyVal.textContent.trim();
+          const newQty = prompt("Enter quantity:", currentQty);
+          if (newQty !== null && newQty.trim()) {
+            setQuantity(id, newQty.trim());
+          }
+        }
         return;
       }
     });

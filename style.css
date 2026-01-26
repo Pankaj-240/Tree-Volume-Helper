@@ -168,6 +168,13 @@ tfoot td.sum{
   text-align: center;
   font-weight: 600;
   color: #333;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background-color 0.12s ease;
+}
+.qty-val:hover {
+  background-color: #f0f0f0;
 }
 
 /* Species block visual separation */
