@@ -134,6 +134,42 @@ tfoot td.sum{
 }
 .del-btn:hover{ background: rgba(0,0,0,0.06); transform: translateY(-1px); }
 
+/* Quantity buttons */
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+.qty-btn{
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.12s ease, transform 0.12s ease;
+  margin: 0;
+}
+.qty-btn:hover{
+  background: #e0e0e0;
+  transform: translateY(-1px);
+}
+.qty-btn:active{
+  transform: translateY(0);
+  background: #d0d0d0;
+}
+.qty-val{
+  display: inline-block;
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}
+
 /* Species block visual separation */
 .species-block{
   border-radius:10px;
